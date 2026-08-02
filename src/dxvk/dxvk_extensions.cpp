@@ -43,6 +43,9 @@ namespace dxvk {
 
       uint32_t revision = supports(ext->name());
 
+      Logger::info(str::format("EXTPROBE ", ext->name(), " -> revision ", revision,
+        " mode ", uint32_t(ext->mode())));
+
       if (revision) {
         if (ext->mode() != DxvkExtMode::Passive)
           nameSet.add(ext->name());
@@ -126,8 +129,11 @@ namespace dxvk {
       return DxvkNameSet();
 
     DxvkNameSet set;
-    for (uint32_t i = 0; i < entryCount; i++)
+    for (uint32_t i = 0; i < entryCount; i++) {
+      Logger::info(str::format("EXTENUM [", i, "/", entryCount, "] ",
+        entries[i].extensionName, " rev ", entries[i].specVersion));
       set.m_names.insert({ entries[i].extensionName, entries[i].specVersion });
+    }
     return set;
   }
 
