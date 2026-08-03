@@ -3,6 +3,9 @@
 
 # DXVK-Sarek
 
+> [!NOTE]
+> This SwitchVN-maintained build reports `DXVK-Sarek v1.12.0-SwitchVN` in logs and the HUD. DLL names, configuration keys, and the upstream DXVK-Sarek identity remain unchanged.
+
 **Vulkan 1.1/1.2 based implementation of D3D3, 5, 6, 7, 8, 9, 10 and 11 for Linux/Wine/Proton.**
 
 This repository exists to support users with Vulkan capable GPUs that don't meet the requirements of current upstream builds. The goal: make sure everyone benefits from the performance of DXVK, even on slightly older hardware. That means creating or backporting QoL patches, fixes, and per-game configurations from the latest versions to the 1.10.x branch and a little more on top.
