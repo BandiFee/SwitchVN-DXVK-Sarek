@@ -1,0 +1,52 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'switchvn-*'
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Tag to publish the release under'
+        required: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # Vulkan-Headers and the SPIR-V headers are submodules; without them
+          # meson stops at "Missing Vulkan-Headers".
+          submodules: recursive
+          fetch-depth: 0
+
+      - name: Build release
+        # package-release.sh already lays the DLLs out as x32/ and x64/, which is
+        # the layout Switchdeck's updater unpacks with --strip-components=1.
+        uses: Joshua-Ashton/arch-mingw-github-action@v8
+        with:
+          command: |
+            TAG="${{ github.event.inputs.tag || github.ref_name }}"
+            ./package-release.sh "${TAG}" "${GITHUB_WORKSPACE}/out"
+
+      - name: Inspect package
+        run: |
+          TAG="${{ github.event.inputs.tag || github.ref_name }}"
+          tar -tzf "out/dxvk-${TAG}.tar.gz" | sort
+          # ddraw.dll is 32-bit only by design - Windows never shipped a 64-bit
+          # DirectDraw runtime - so its absence from x64 is expected.
+          tar -tzf "out/dxvk-${TAG}.tar.gz" | grep -q "x32/d3d9.dll"
+          tar -tzf "out/dxvk-${TAG}.tar.gz" | grep -q "x64/d3d9.dll"
+          tar -tzf "out/dxvk-${TAG}.tar.gz" | grep -q "x64/d3d11.dll"
+
+      - name: Publish release asset
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ github.event.inputs.tag || github.ref_name }}
+        run: |
+          mv "out/dxvk-${TAG}.tar.gz" switchvn-dxvk.tar.gz
+          gh release view "$TAG" >/dev/null 2>&1 \
+            || gh release create "$TAG" --title "$TAG" --notes "DXVK-Sarek with the SwitchVN presentation fix"
+          gh release upload "$TAG" switchvn-dxvk.tar.gz --clobber
