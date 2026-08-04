@@ -49,7 +49,11 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           TAG: ${{ github.event.inputs.tag || github.ref_name }}
         run: |
-          mv "out/dxvk-${TAG}.tar.gz" switchvn-dxvk.tar.gz
+          # package-release.sh runs inside the mingw container as root, so out/
+          # and everything under it belongs to root and the runner user cannot
+          # unlink from it. Copy rather than move, then take ownership.
+          sudo cp "out/dxvk-${TAG}.tar.gz" switchvn-dxvk.tar.gz
+          sudo chown "$(id -u):$(id -g)" switchvn-dxvk.tar.gz
           gh release view "$TAG" >/dev/null 2>&1 \
             || gh release create "$TAG" --title "$TAG" --notes "DXVK-Sarek with the SwitchVN presentation fix"
           gh release upload "$TAG" switchvn-dxvk.tar.gz --clobber
