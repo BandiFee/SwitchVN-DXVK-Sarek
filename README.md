@@ -4,7 +4,7 @@
 # DXVK-Sarek
 
 > [!NOTE]
-> This SwitchVN-maintained build reports `DXVK-Sarek v1.12.0-SwitchVN` in logs and the HUD. DLL names, configuration keys, and the upstream DXVK-Sarek identity remain unchanged.
+> This SwitchVN-maintained build reports `DXVK-Sarek v1.12.0-SwitchVN-1` in logs and the HUD, where the trailing number is the SwitchVN revision of that upstream release. DLL names, configuration keys, and the upstream DXVK-Sarek identity remain unchanged.
 
 **Vulkan 1.1/1.2 based implementation of D3D3, 5, 6, 7, 8, 9, 10 and 11 for Linux/Wine/Proton.**
 
