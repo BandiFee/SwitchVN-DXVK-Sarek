@@ -57,6 +57,9 @@ jobs:
           gh release view "$TAG" >/dev/null 2>&1 \
             || gh release create "$TAG" --title "$TAG" --notes "DXVK-Sarek with the SwitchVN presentation fix"
           gh release upload "$TAG" switchvn-dxvk.tar.gz --clobber
+          # Deleting and recreating a tag can leave the associated release as a
+          # draft. Always promote it after the final asset has been attached.
+          gh release edit "$TAG" --draft=false --prerelease=false
 
       - name: Verify the asset is actually published
         # A release lives on its tag, so anything that removes the tag removes
@@ -69,6 +72,10 @@ jobs:
         run: |
           names=$(gh release view "$TAG" --repo "${{ github.repository }}" \
             --json assets --jq '.assets[].name')
+          is_draft=$(gh release view "$TAG" --repo "${{ github.repository }}" \
+            --json isDraft --jq '.isDraft')
           echo "$names"
           printf '%s\n' "$names" | grep -qx 'switchvn-dxvk.tar.gz' \
             || { echo "::error::switchvn-dxvk.tar.gz is not attached to release $TAG"; exit 1; }
+          test "$is_draft" = false \
+            || { echo "::error::release $TAG is still a draft"; exit 1; }
